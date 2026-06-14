@@ -198,8 +198,8 @@ td.no-result {
 }
 
 tr.favorited td {
-  outline: 2px solid #e74c3c;
-  outline-offset: -2px;
+  border-top: 2px solid #e74c3c;
+  border-bottom: 2px solid #e74c3c;
 }
 
 tr.favorited .fav-heart {
