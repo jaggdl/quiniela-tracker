@@ -1,4 +1,4 @@
-<div id="leaderboard-content">
+<div id="leaderboard-content" data-controller="favorites">
   <h1>Quiniela Mundial 2026</h1>
 
   <div class="table-wrapper">
@@ -32,9 +32,12 @@
       </thead>
       <tbody>
         <% participants.each_with_index do |participant, index| %>
-          <tr>
+          <tr data-favorites-target="row" data-participant-id="<%= participant.id %>">
             <td class="col-rank"><%= index + 1 %></td>
-            <td class="col-name"><%= participant.name %></td>
+            <td class="col-name">
+              <span class="fav-heart" data-action="click->favorites#toggle" data-participant-id="<%= participant.id %>">♡</span>
+              <%= participant.name %>
+            </td>
             <td class="col-pts">
               <%= participant.total_points %>
               <% diff = participant.total_points - leader_points %>

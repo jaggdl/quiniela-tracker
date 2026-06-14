@@ -183,3 +183,30 @@ td.no-result {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.5; }
 }
+
+.fav-heart {
+  cursor: pointer;
+  user-select: none;
+  margin-right: 4px;
+  font-size: 0.85rem;
+  color: #999;
+  transition: color 0.15s;
+}
+
+.fav-heart:hover {
+  color: #e74c3c;
+}
+
+tr.favorited td {
+  background: #fef3e1 !important;
+}
+
+tr.favorited td.col-rank,
+tr.favorited td.col-name,
+tr.favorited td.col-pts {
+  background: #fef3e1 !important;
+}
+
+tr.favorited .fav-heart {
+  color: #e74c3c;
+}
