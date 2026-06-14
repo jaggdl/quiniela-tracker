@@ -91,7 +91,17 @@ The recurring schedule (`config/recurring.yml`) is configured for both developme
 ## View Details
 
 - `app/views/participants/index.html.erb` — Leaderboard table with all 72 match columns
+- `app/views/participants/_table.html.erb` — Reusable table partial (used for both initial render and Turbo Stream broadcasts)
 - Fixed left columns (#, name, pts) via sticky CSS; right columns scroll horizontally
 - Color coding: green (`exact`, 3pts), yellow (`direction`, 1pt), red (`miss`, 0pts), gray (`no-result`)
 - Live matches get red header column + pulsing badge with status (`2H'`, `1H'`)
 - Helper `prediction_css(prediction)` in `ParticipantsHelper`
+
+## Real-time Updates (Turbo Streams)
+
+The leaderboard updates automatically without page reload:
+- `LeaderboardChannel` streams from "leaderboard" over Action Cable WebSocket
+- `<%= turbo_stream_from "leaderboard" %>` subscribes the browser
+- `FetchMatchResultsJob#broadcast_leaderboard` re-renders the `_table` partial and broadcasts via `Turbo::StreamsChannel.broadcast_replace_to`
+- Only broadcasts when match scores actually change (avoids unnecessary re-renders)
+- Requires `SOLID_QUEUE_IN_PUMA=1` in development (async adapter works within the same process)
