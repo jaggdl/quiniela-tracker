@@ -50,6 +50,8 @@ class FetchMatchResultsJob < ApplicationJob
     data = JSON.parse(response)
     events = data["events"] || []
 
+    changed = false
+
     events.each do |event|
       match = find_match(event["strHomeTeam"], event["strAwayTeam"])
       next unless match
@@ -60,12 +62,44 @@ class FetchMatchResultsJob < ApplicationJob
         attrs[:away_score] = event["intAwayScore"]
       end
 
-      match.update!(attrs) if match.status != attrs[:status] ||
-                              (attrs[:home_score] && match.home_score != attrs[:home_score])
+      if match.status != attrs[:status] ||
+         (attrs[:home_score] && match.home_score != attrs[:home_score])
+        match.update!(attrs)
+        changed = true
+      end
     end
+
+    broadcast_leaderboard if changed
   end
 
   private
+
+  def broadcast_leaderboard
+    matches = Match.order(:matchday, :match_number)
+
+    participants = Participant
+      .includes(predictions: :match)
+      .sort_by { |p| [-p.total_points, p.name] }
+
+    predictions_by_participant = participants.each_with_object({}) do |participant, hash|
+      hash[participant.id] = participant.predictions.index_by(&:match_id)
+    end
+
+    html = ApplicationController.render(
+      partial: "participants/table",
+      locals: {
+        matches: matches,
+        participants: participants,
+        predictions_by_participant: predictions_by_participant
+      }
+    )
+
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "leaderboard",
+      target: "leaderboard-content",
+      html: html
+    )
+  end
 
   def team_name_for(api_name)
     TEAM_NAME_MAP[api_name] || api_name.upcase

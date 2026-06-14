@@ -1,0 +1,50 @@
+<div id="leaderboard-content">
+  <h1>Quiniela Mundial 2026</h1>
+
+  <div class="table-wrapper">
+    <table class="leaderboard">
+      <thead>
+        <tr>
+          <th class="col-rank">#</th>
+          <th class="col-name">Participante</th>
+          <th class="col-pts">Pts</th>
+          <% matches.each do |match| %>
+            <th class="col-match <%= match_css(match) %>">
+              <div class="match-header">
+                <span class="team-home"><%= match.home_team %></span>
+                <span class="match-result">
+                  <% if match.result_set? %>
+                    <%= match.home_score %> - <%= match.away_score %>
+                  <% elsif match.live? %>
+                    <span class="live-badge"><%= match.status_display %></span>
+                  <% else %>
+                    &mdash;
+                  <% end %>
+                  <% if match.live? && match.result_set? %>
+                    <span class="live-badge"><%= match.status_display %></span>
+                  <% end %>
+                </span>
+                <span class="team-away"><%= match.away_team %></span>
+              </div>
+            </th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% participants.each_with_index do |participant, index| %>
+          <tr>
+            <td class="col-rank"><%= index + 1 %></td>
+            <td class="col-name"><%= participant.name %></td>
+            <td class="col-pts"><%= participant.total_points %></td>
+            <% matches.each do |match| %>
+              <% prediction = predictions_by_participant[participant.id][match.id] %>
+              <td class="col-match <%= prediction_css(prediction) %>">
+                <%= prediction.home_score %> - <%= prediction.away_score %>
+              </td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
