@@ -35,7 +35,11 @@
           <tr>
             <td class="col-rank"><%= index + 1 %></td>
             <td class="col-name"><%= participant.name %></td>
-            <td class="col-pts"><%= participant.total_points %></td>
+            <td class="col-pts">
+              <%= participant.total_points %>
+              <% diff = participant.total_points - leader_points %>
+              <span class="pts-diff"><%= diff.zero? ? "" : "(#{diff})" %></span>
+            </td>
             <% matches.each do |match| %>
               <% prediction = predictions_by_participant[participant.id][match.id] %>
               <td class="col-match <%= prediction_css(prediction) %>">

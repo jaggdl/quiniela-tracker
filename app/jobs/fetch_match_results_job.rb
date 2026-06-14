@@ -85,12 +85,15 @@ class FetchMatchResultsJob < ApplicationJob
       hash[participant.id] = participant.predictions.index_by(&:match_id)
     end
 
+    leader_points = participants.first&.total_points || 0
+
     html = ApplicationController.render(
       partial: "participants/table",
       locals: {
         matches: matches,
         participants: participants,
-        predictions_by_participant: predictions_by_participant
+        predictions_by_participant: predictions_by_participant,
+        leader_points: leader_points
       }
     )
 
