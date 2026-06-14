@@ -1,0 +1,88 @@
+class FetchMatchResultsJob < ApplicationJob
+  queue_as :default
+
+  require "net/http"
+  require "json"
+
+  API_URL = "https://www.thesportsdb.com/api/v1/json/123/eventsseason.php?id=4429&s=2026".freeze
+
+  TEAM_NAME_MAP = {
+    "Mexico" => "MÉXICO", "South Africa" => "SUDAFRICA",
+    "South Korea" => "COREA", "Czech Republic" => "REP. CHECA",
+    "Canada" => "CANADA", "Bosnia-Herzegovina" => "BOSNIA",
+    "USA" => "ESTADOS UNIDOS", "Paraguay" => "PARAGUAY",
+    "Brazil" => "BRASIL", "Morocco" => "MARRUECOS",
+    "Qatar" => "CATAR", "Switzerland" => "SUIZA",
+    "Haiti" => "HAITI", "Scotland" => "ESCOCIA",
+    "Germany" => "ALEMANIA", "Curaçao" => "CURAZAO",
+    "Ivory Coast" => "COSTA DE MARFIL", "Ecuador" => "ECUADOR",
+    "Netherlands" => "PAISES BAJOS", "Japan" => "JAPÓN",
+    "Australia" => "AUSTRALIA", "Turkey" => "TURQUIA",
+    "Belgium" => "BELGICA", "Egypt" => "EGIPTO",
+    "Saudi Arabia" => "ARABIA SAUDITA", "Uruguay" => "URUGUAY",
+    "Spain" => "ESPAÑA", "Cape Verde" => "CABO VERDE",
+    "Sweden" => "SUECIA", "Tunisia" => "TUNEZ",
+    "France" => "FRANCIA", "Senegal" => "SENEGAL",
+    "Iraq" => "IRAK", "Norway" => "NORUEGA",
+    "Argentina" => "ARGENTINA", "Algeria" => "ARGELIA",
+    "Jordan" => "JORDANIA", "Portugal" => "PORTUGAL",
+    "Congo" => "CONGO", "England" => "INGLATERRA",
+    "Croatia" => "CROACIA", "Ghana" => "GHANA",
+    "Panama" => "PANAMA", "Colombia" => "COLOMBIA",
+    "Uzbekistan" => "UZBEKISTAN", "Austria" => "AUSTRIA",
+    "Iran" => "IRAN", "New Zealand" => "NUEVA ZELANDA",
+  }.freeze
+
+  DB_TEAM_VARIANTS = {
+    "ALEMANIA" => %w[ALEMANIA ALEMANIS],
+    "ALEMANIS" => %w[ALEMANIS ALEMANIA],
+    "BELGICA" => %w[BELGICA BÉLGICA],
+    "BÉLGICA" => %w[BÉLGICA BELGICA],
+    "JAPON" => %w[JAPON JAPÓN],
+    "JAPÓN" => %w[JAPÓN JAPON],
+    "COSTA DE MARFIL" => ["COSTA DE MARFIL", "COSRTA DE MARFIL"],
+    "COSRTA DE MARFIL" => ["COSRTA DE MARFIL", "COSTA DE MARFIL"],
+  }.freeze
+
+  def perform
+    uri = URI(API_URL)
+    response = Net::HTTP.get(uri)
+    data = JSON.parse(response)
+    events = data["events"] || []
+
+    events.each do |event|
+      match = find_match(event["strHomeTeam"], event["strAwayTeam"])
+      next unless match
+
+      attrs = { status: event["strStatus"] || "NS" }
+      if event["intHomeScore"].present? && event["intAwayScore"].present?
+        attrs[:home_score] = event["intHomeScore"]
+        attrs[:away_score] = event["intAwayScore"]
+      end
+
+      match.update!(attrs) if match.status != attrs[:status] ||
+                              (attrs[:home_score] && match.home_score != attrs[:home_score])
+    end
+  end
+
+  private
+
+  def team_name_for(api_name)
+    TEAM_NAME_MAP[api_name] || api_name.upcase
+  end
+
+  def find_match(api_home, api_away)
+    db_home = team_name_for(api_home)
+    db_away = team_name_for(api_away)
+
+    home_variants = DB_TEAM_VARIANTS[db_home] || [db_home]
+    away_variants = DB_TEAM_VARIANTS[db_away] || [db_away]
+
+    home_variants.product(away_variants).each do |h, a|
+      match = Match.find_by(home_team: h, away_team: a)
+      return match if match
+    end
+
+    Match.find_by(home_team: db_away, away_team: db_home)
+  end
+end

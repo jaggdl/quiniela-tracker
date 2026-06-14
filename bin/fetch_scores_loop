@@ -1,0 +1,12 @@
+#!/bin/bash
+# Background loop that fetches match results every 60 seconds.
+# Usage: bin/fetch_scores_loop [interval_seconds]
+
+INTERVAL=${1:-60}
+LOG="log/cron.log"
+echo "[$(date)] Starting score fetcher (every ${INTERVAL}s). PID: $$" | tee -a "$LOG"
+
+while true; do
+  bin/rails import:fetch_results >> "$LOG" 2>&1
+  sleep "$INTERVAL"
+done
