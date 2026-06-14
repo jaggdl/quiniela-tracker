@@ -197,8 +197,9 @@ td.no-result {
   color: #e74c3c;
 }
 
-tr.favorited {
-  box-shadow: inset 0 0 0 2px #e74c3c;
+tr.favorited td {
+  outline: 2px solid #e74c3c;
+  outline-offset: -2px;
 }
 
 tr.favorited .fav-heart {
