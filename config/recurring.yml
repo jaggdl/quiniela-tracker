@@ -1,3 +1,8 @@
+development:
+  fetch_match_results:
+    class: FetchMatchResultsJob
+    schedule: every minute
+
 production:
   fetch_match_results:
     class: FetchMatchResultsJob

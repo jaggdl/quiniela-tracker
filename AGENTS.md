@@ -72,7 +72,13 @@ Fetches events from TheSportsDB API (`eventsseason.php?id=4429&s=2026`), maps te
 Wraps the fetch logic from `import:fetch_results`. Configured in `config/recurring.yml` to run every minute in production via Solid Queue.
 
 ### Development cron
-`bin/fetch_scores_loop` runs `rails import:fetch_results` in a bash loop every 60 seconds. Start it in a separate terminal during development.
+Solid Queue runs recurring tasks in development too. Start it in the same process as Puma:
+```
+SOLID_QUEUE_IN_PUMA=1 bin/rails server
+```
+Or in a separate terminal: `bin/jobs`
+
+The recurring schedule (`config/recurring.yml`) is configured for both development and production.
 
 ## Important CSV Data Facts
 
