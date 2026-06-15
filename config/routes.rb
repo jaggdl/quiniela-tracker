@@ -4,4 +4,6 @@ Rails.application.routes.draw do
   resources :participants, only: :index
 
   root "participants#index"
+
+  mount ActionCable.server => "/cable"
 end
