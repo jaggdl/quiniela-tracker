@@ -137,13 +137,13 @@ class FetchMatchResultsJob < ApplicationJob
   end
 
   def update_statuses_from_polymarket
-    events = PolymarketService.new.send(:fetch_events)
+    events = PolymarketService.new.fetch_events
     return false if events.empty?
 
     changed = false
 
     events.each do |event|
-      match = PolymarketService.new.send(:find_db_match, event)
+      match = PolymarketService.new.find_db_match(event)
       next unless match
 
       if event["closed"] && event["score"]

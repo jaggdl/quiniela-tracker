@@ -56,8 +56,6 @@ class PolymarketService
     result
   end
 
-  private
-
   def fetch_events
     uri = URI("#{GAMMA_URL}/events?series_id=#{SERIES_ID}&limit=200")
     response = Net::HTTP.get(uri)
@@ -81,6 +79,8 @@ class PolymarketService
 
     Match.find_by(home_team: db_away, away_team: db_home)
   end
+
+  private
 
   def extract_probabilities(event, markets)
     title = event["title"] || ""

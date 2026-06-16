@@ -171,7 +171,7 @@ class SimulationService
 
       winners = []
       n_participants.times { |pi| winners << pi if totals[pi] == max_pts }
-      share = 1.0 / winners.length
+      share = 1.0
       winners.each { |pi| win_counts[participants[pi].id] += share }
     end
 
