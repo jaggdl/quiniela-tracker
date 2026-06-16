@@ -2,9 +2,9 @@ class Match < ApplicationRecord
   LIVE_STATUSES = %w[1H HT 2H ET LIVE].freeze
   STATUS_DISPLAY = {
     "NS" => "—",
-    "1H" => "1H'",
-    "HT" => "HT",
-    "2H" => "2H'",
+    "1H" => "1T'",
+    "HT" => "MT",
+    "2H" => "2T'",
     "ET" => "ET",
     "FT" => "FT",
     "LIVE" => "LIVE",
