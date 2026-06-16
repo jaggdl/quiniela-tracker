@@ -86,8 +86,8 @@ namespace :import do
 
       attrs = { status: event["strStatus"] || "NS" }
       if event["intHomeScore"].present? && event["intAwayScore"].present?
-        attrs[:home_score] = event["intHomeScore"]
-        attrs[:away_score] = event["intAwayScore"]
+        attrs[:home_score] = event["intHomeScore"].to_i
+        attrs[:away_score] = event["intAwayScore"].to_i
       end
 
       match.update!(attrs)

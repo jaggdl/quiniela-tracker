@@ -4,7 +4,7 @@ class FetchMatchResultsJob < ApplicationJob
   require "net/http"
   require "json"
 
-  API_URL = "https://www.thesportsdb.com/api/v1/json/123/eventsseason.php?id=4429&s=2026".freeze
+  API_URL = "https://www.thesportsdb.com/api/v1/json/123/eventsround.php?id=4429&s=2026&r=".freeze
 
   TEAM_NAME_MAP = {
     "Mexico" => "MÉXICO", "South Africa" => "SUDAFRICA",
@@ -31,6 +31,7 @@ class FetchMatchResultsJob < ApplicationJob
     "Panama" => "PANAMA", "Colombia" => "COLOMBIA",
     "Uzbekistan" => "UZBEKISTAN", "Austria" => "AUSTRIA",
     "Iran" => "IRAN", "New Zealand" => "NUEVA ZELANDA",
+    "Italy" => "ITALIA",
   }.freeze
 
   DB_TEAM_VARIANTS = {
@@ -45,29 +46,36 @@ class FetchMatchResultsJob < ApplicationJob
   }.freeze
 
   def perform
-    uri = URI(API_URL)
-    response = Net::HTTP.get(uri)
-    data = JSON.parse(response)
-    events = data["events"] || []
-
     changed = false
 
-    events.each do |event|
-      match = find_match(event["strHomeTeam"], event["strAwayTeam"])
-      next unless match
+    (1..3).each do |round|
+      uri = URI("#{API_URL}#{round}")
+      response = Net::HTTP.get(uri)
+      data = JSON.parse(response)
+      events = data["events"] || []
 
-      attrs = { status: event["strStatus"] || "NS" }
-      if event["intHomeScore"].present? && event["intAwayScore"].present?
-        attrs[:home_score] = event["intHomeScore"]
-        attrs[:away_score] = event["intAwayScore"]
-      end
+      events.each do |event|
+        match = find_match(event["strHomeTeam"], event["strAwayTeam"])
+        next unless match
 
-      if match.status != attrs[:status] ||
-         (attrs[:home_score] && match.home_score != attrs[:home_score])
-        match.update!(attrs)
-        changed = true
+        attrs = { status: event["strStatus"] || "NS" }
+        scores_present = event["intHomeScore"].present? && event["intAwayScore"].present?
+        if scores_present
+          attrs[:home_score] = event["intHomeScore"].to_i
+          attrs[:away_score] = event["intAwayScore"].to_i
+        end
+
+        scores_changed = scores_present &&
+          (match.home_score != attrs[:home_score] || match.away_score != attrs[:away_score])
+
+        if match.status != attrs[:status] || scores_changed
+          match.update!(attrs)
+          changed = true
+        end
       end
     end
+
+    changed = true if update_statuses_from_polymarket
 
     broadcast_leaderboard if changed
   end
@@ -85,10 +93,15 @@ class FetchMatchResultsJob < ApplicationJob
       hash[participant.id] = participant.predictions.index_by(&:match_id)
     end
 
-    leader_points = participants.first&.total_points || 0
+    leader_points = participants.map(&:total_points).max || 0
+
+    rank_by_pts = {}
+    sorted = participants.sort_by { |p| [-p.total_points, p.name] }
+    sorted.each_with_index { |p, i| rank_by_pts[p.id] = i + 1 }
 
     html = ApplicationController.render(
       partial: "participants/table",
+      assigns: { sort: "pts", rank_by_pts: rank_by_pts },
       locals: {
         matches: matches,
         participants: participants,
@@ -121,5 +134,40 @@ class FetchMatchResultsJob < ApplicationJob
     end
 
     Match.find_by(home_team: db_away, away_team: db_home)
+  end
+
+  def update_statuses_from_polymarket
+    events = PolymarketService.new.send(:fetch_events)
+    return false if events.empty?
+
+    changed = false
+
+    events.each do |event|
+      match = PolymarketService.new.send(:find_db_match, event)
+      next unless match
+
+      if event["closed"] && event["score"]
+        parts = event["score"].to_s.split("-")
+        next unless parts.length == 2
+
+        home_score = parts[0].to_i
+        away_score = parts[1].to_i
+
+        if !match.result_set? || match.home_score != home_score || match.away_score != away_score
+          match.update!(status: "FT", home_score: home_score, away_score: away_score)
+          changed = true
+        end
+      elsif event["live"] && !match.result_set?
+        if match.status != "LIVE"
+          match.update!(status: "LIVE")
+          changed = true
+        end
+      end
+    end
+
+    changed
+  rescue StandardError => e
+    Rails.logger.warn("update_statuses_from_polymarket failed: #{e.message}")
+    false
   end
 end

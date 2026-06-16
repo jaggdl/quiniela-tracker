@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_14_224555) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_16_170700) do
   create_table "matches", force: :cascade do |t|
     t.integer "away_score"
     t.string "away_team", null: false
@@ -29,6 +29,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_14_224555) do
     t.string "name", null: false
     t.integer "position"
     t.datetime "updated_at", null: false
+    t.decimal "win_probability", precision: 5, scale: 1, default: "0.0"
   end
 
   create_table "predictions", force: :cascade do |t|

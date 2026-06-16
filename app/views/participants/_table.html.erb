@@ -1,5 +1,14 @@
-<div id="leaderboard-content" data-controller="favorites">
+<div id="leaderboard-content" data-controller="favorites leaderboard"
+     style="view-transition-name: leaderboard-content">
   <h1>Quiniela Mundial 2026</h1>
+
+  <div class="sort-bar">
+    <label for="sort-select">Ordenar por:</label>
+    <select id="sort-select" onchange="Turbo.visit('?sort='+this.value)">
+      <option value="pts" <%= "selected" if @sort == "pts" %>>Puntos</option>
+      <option value="win" <%= "selected" if @sort == "win" %>>% Ganar</option>
+    </select>
+  </div>
 
   <div class="table-wrapper">
     <table class="leaderboard">
@@ -7,9 +16,10 @@
         <tr>
           <th class="col-rank">#</th>
           <th class="col-name">Participante</th>
-          <th class="col-pts">Pts</th>
+          <th class="col-pts" title="Puntos acumulados">Pts</th>
+          <th class="col-win" title="Probabilidad de ganar la quiniela">Win%</th>
           <% matches.each do |match| %>
-            <th class="col-match <%= match_css(match) %>">
+            <th id="<%= dom_id(match, :hdr) %>" class="col-match <%= match_css(match) %>">
               <div class="match-header">
                 <span class="team-home"><%= match.home_team %></span>
                 <span class="match-result">
@@ -33,19 +43,20 @@
       <tbody>
         <% participants.each_with_index do |participant, index| %>
           <tr data-favorites-target="row" data-participant-id="<%= participant.id %>">
-            <td class="col-rank"><%= index + 1 %></td>
+            <td class="col-rank"><%= @rank_by_pts[participant.id] %></td>
             <td class="col-name">
               <span class="fav-heart" data-action="click->favorites#toggle" data-participant-id="<%= participant.id %>">♡</span>
               <%= participant.name %>
             </td>
-            <td class="col-pts">
+            <td id="<%= dom_id(participant, :pts) %>" class="col-pts">
               <%= participant.total_points %>
               <% diff = participant.total_points - leader_points %>
               <span class="pts-diff"><%= diff.zero? ? "" : "(#{diff})" %></span>
             </td>
+            <td class="col-win"><%= sprintf("%.1f%%", participant.win_probability) %></td>
             <% matches.each do |match| %>
               <% prediction = predictions_by_participant[participant.id][match.id] %>
-              <td class="col-match <%= prediction_css(prediction) %>">
+              <td id="<%= dom_id(prediction) %>" class="col-match <%= prediction_css(prediction) %>">
                 <%= prediction.home_score %> - <%= prediction.away_score %>
               </td>
             <% end %>
@@ -54,4 +65,8 @@
       </tbody>
     </table>
   </div>
+  <p class="simulation-note">
+    Win% vía simulación Monte Carlo (5,000 iteraciones). Probabilidades de resultado (local/empate/visitante)
+    de Polymarket; distribución de marcadores según predicciones de los participantes.
+  </p>
 </div>
