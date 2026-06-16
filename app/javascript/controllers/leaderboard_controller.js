@@ -13,18 +13,35 @@ export default class extends Controller {
   beforeStreamRender(event) {
     if (event.target.target !== "leaderboard-content") return
 
-    if (!document.startViewTransition) return
+    const wrapper = this.element.querySelector(".table-wrapper")
+    const scrollLeft = wrapper ? wrapper.scrollLeft : 0
+
+    if (!document.startViewTransition) {
+      this.renderAndRestore(event, scrollLeft)
+      return
+    }
 
     event.preventDefault()
     const { newStream, render } = event.detail
 
     document.startViewTransition(() => {
       render(newStream)
-      this.afterRender()
+      this.restoreScroll(scrollLeft)
+      this.dispatch("updated")
     })
   }
 
-  afterRender() {
-    this.dispatch("updated")
+  renderAndRestore(event, scrollLeft) {
+    const { newStream, render } = event.detail
+    event.preventDefault()
+    render(newStream)
+    this.restoreScroll(scrollLeft)
+  }
+
+  restoreScroll(scrollLeft) {
+    requestAnimationFrame(() => {
+      const wrapper = this.element.querySelector(".table-wrapper")
+      if (wrapper) wrapper.scrollLeft = scrollLeft
+    })
   }
 }
