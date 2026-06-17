@@ -147,27 +147,14 @@ class FetchMatchResultsJob < ApplicationJob
     changed = false
 
     events.each do |event|
+      next unless event["live"]
+
       match = PolymarketService.new.find_db_match(event)
       next unless match
+      next if match.result_set?
 
-      if event["score"].present?
-        parts = event["score"].to_s.split("-")
-        next unless parts.length == 2
-
-        home_score = parts[0].to_i
-        away_score = parts[1].to_i
-
-        if !match.result_set? || match.status != "FT" || match.home_score != home_score || match.away_score != away_score
-          match.update!(status: "FT", home_score: home_score, away_score: away_score)
-          changed = true
-        end
-      elsif event["live"] && !match.result_set?
-        if match.status != "LIVE"
-          match.update!(status: "LIVE")
-          changed = true
-        end
-      elsif event["closed"] && !match.result_set?
-        match.update!(status: "FT")
+      if match.status != "LIVE"
+        match.update!(status: "LIVE")
         changed = true
       end
     end
