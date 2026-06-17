@@ -26,7 +26,7 @@ class FetchMatchResultsJob < ApplicationJob
     "Iraq" => "IRAK", "Norway" => "NORUEGA",
     "Argentina" => "ARGENTINA", "Algeria" => "ARGELIA",
     "Jordan" => "JORDANIA", "Portugal" => "PORTUGAL",
-    "Congo" => "CONGO", "England" => "INGLATERRA",
+    "Congo" => "CONGO", "DR Congo" => "CONGO", "England" => "INGLATERRA",
     "Croatia" => "CROACIA", "Ghana" => "GHANA",
     "Panama" => "PANAMA", "Colombia" => "COLOMBIA",
     "Uzbekistan" => "UZBEKISTAN", "Austria" => "AUSTRIA",
