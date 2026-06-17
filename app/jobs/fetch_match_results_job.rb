@@ -146,7 +146,7 @@ class FetchMatchResultsJob < ApplicationJob
       match = PolymarketService.new.find_db_match(event)
       next unless match
 
-      if event["closed"] && event["score"]
+      if event["score"].present?
         parts = event["score"].to_s.split("-")
         next unless parts.length == 2
 
@@ -162,6 +162,9 @@ class FetchMatchResultsJob < ApplicationJob
           match.update!(status: "LIVE")
           changed = true
         end
+      elsif event["closed"] && !match.result_set?
+        match.update!(status: "FT")
+        changed = true
       end
     end
 
