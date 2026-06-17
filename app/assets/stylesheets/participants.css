@@ -63,7 +63,7 @@ h1 {
 }
 
 .col-rank { width: 16px; min-width: 16px; }
-.col-name { width: 120px; min-width: 120px; text-align: left !important; }
+.col-name { max-width: 240px; text-align: left !important; overflow: hidden; text-overflow: ellipsis; }
 .col-win { width: 50px; min-width: 50px; }
 .col-pts { width: 40px; min-width: 40px; }
 
@@ -90,7 +90,7 @@ h1 {
 
 .leaderboard th.col-name,
 .leaderboard td.col-name {
-  left: 16px;
+  left: 32px;
   text-align: left;
 }
 
