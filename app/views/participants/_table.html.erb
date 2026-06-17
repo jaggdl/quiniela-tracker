@@ -1,15 +1,5 @@
 <div id="leaderboard-content" data-controller="favorites leaderboard"
      style="view-transition-name: leaderboard-content">
-  <h1>Quiniela Mundial 2026</h1>
-
-  <div class="sort-bar">
-    <label for="sort-select">Ordenar por:</label>
-    <select id="sort-select" onchange="Turbo.visit('?sort='+this.value)">
-      <option value="pts" <%= "selected" if @sort == "pts" %>>Puntos</option>
-      <option value="win" <%= "selected" if @sort == "win" %>>% Ganar</option>
-    </select>
-  </div>
-
   <div class="table-wrapper">
     <table class="leaderboard">
       <thead>

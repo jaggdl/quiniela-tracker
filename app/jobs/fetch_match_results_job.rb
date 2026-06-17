@@ -72,7 +72,8 @@ class FetchMatchResultsJob < ApplicationJob
           attrs.delete(:status)
         end
 
-        if match.status != attrs[:status] || scores_changed
+        status_changed = attrs.key?(:status) && match.status != attrs[:status]
+        if status_changed || scores_changed
           match.update!(attrs)
           changed = true
         end
