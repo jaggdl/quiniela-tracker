@@ -68,6 +68,10 @@ class FetchMatchResultsJob < ApplicationJob
         scores_changed = scores_present &&
           (match.home_score != attrs[:home_score] || match.away_score != attrs[:away_score])
 
+        if match.status == "FT" && attrs[:status] != "FT"
+          attrs.delete(:status)
+        end
+
         if match.status != attrs[:status] || scores_changed
           match.update!(attrs)
           changed = true
