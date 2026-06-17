@@ -12,6 +12,8 @@ class ParticipantsController < ApplicationController
 
     @leader_points = @participants.map(&:total_points).max || 0
 
+    @max_win_prob = @participants.map(&:win_probability).compact.max || 0.0
+
     @predictions_by_participant = @participants.each_with_object({}) do |participant, hash|
       hash[participant.id] = participant.predictions.index_by(&:match_id)
     end

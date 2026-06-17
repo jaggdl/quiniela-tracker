@@ -97,6 +97,7 @@ class FetchMatchResultsJob < ApplicationJob
     end
 
     leader_points = participants.map(&:total_points).max || 0
+    max_win_prob = participants.map(&:win_probability).compact.max || 0.0
 
     rank_by_pts = {}
     pts_sorted = participants.sort_by { |p| [-p.total_points, p.name] }
@@ -115,7 +116,8 @@ class FetchMatchResultsJob < ApplicationJob
           matches: matches,
           participants: sorted,
           predictions_by_participant: predictions_by_participant,
-          leader_points: leader_points
+          leader_points: leader_points,
+          max_win_prob: max_win_prob
         }
       )
 
