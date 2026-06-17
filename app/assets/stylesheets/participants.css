@@ -96,12 +96,12 @@ h1 {
 
 .leaderboard th.col-win,
 .leaderboard td.col-win {
-  left: 176px;
+  left: 230px;
 }
 
 .leaderboard th.col-pts,
 .leaderboard td.col-pts {
-  left: 136px;
+  left: 180px;
 }
 
 .leaderboard th.col-rank { z-index: 3; }
