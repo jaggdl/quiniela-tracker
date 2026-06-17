@@ -90,9 +90,7 @@ class FetchMatchResultsJob < ApplicationJob
   def broadcast_leaderboard
     matches = Match.order(:matchday, :match_number)
 
-    participants = Participant
-      .includes(predictions: :match)
-      .sort_by { |p| [-p.total_points, p.name] }
+    participants = Participant.includes(predictions: :match).to_a
 
     predictions_by_participant = participants.each_with_object({}) do |participant, hash|
       hash[participant.id] = participant.predictions.index_by(&:match_id)
@@ -101,25 +99,32 @@ class FetchMatchResultsJob < ApplicationJob
     leader_points = participants.map(&:total_points).max || 0
 
     rank_by_pts = {}
-    sorted = participants.sort_by { |p| [-p.total_points, p.name] }
-    sorted.each_with_index { |p, i| rank_by_pts[p.id] = i + 1 }
+    pts_sorted = participants.sort_by { |p| [-p.total_points, p.name] }
+    pts_sorted.each_with_index { |p, i| rank_by_pts[p.id] = i + 1 }
 
-    html = ApplicationController.render(
-      partial: "participants/table",
-      assigns: { sort: "pts", rank_by_pts: rank_by_pts },
-      locals: {
-        matches: matches,
-        participants: participants,
-        predictions_by_participant: predictions_by_participant,
-        leader_points: leader_points
-      }
-    )
+    win_sorted = participants.sort_by { |p| [-p.win_probability, p.name] }
 
-    Turbo::StreamsChannel.broadcast_replace_to(
-      "leaderboard",
-      target: "leaderboard-content",
-      html: html
-    )
+    [
+      ["leaderboard_pts", pts_sorted, "pts"],
+      ["leaderboard_win", win_sorted, "win"]
+    ].each do |channel, sorted, sort|
+      html = ApplicationController.render(
+        partial: "participants/table",
+        assigns: { sort: sort, rank_by_pts: rank_by_pts },
+        locals: {
+          matches: matches,
+          participants: sorted,
+          predictions_by_participant: predictions_by_participant,
+          leader_points: leader_points
+        }
+      )
+
+      Turbo::StreamsChannel.broadcast_replace_to(
+        channel,
+        target: "leaderboard-content",
+        html: html
+      )
+    end
   end
 
   def team_name_for(api_name)

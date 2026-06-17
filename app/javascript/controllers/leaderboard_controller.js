@@ -47,32 +47,6 @@ export default class extends Controller {
   }
 
   afterRender() {
-    const select = document.getElementById("sort-select")
-    if (select && select.value === "win") {
-      this.#sortByWin()
-    }
-    this.#updateRanks()
     this.dispatch("updated")
-  }
-
-  #sortByWin() {
-    const tbody = this.element.querySelector("tbody")
-    if (!tbody) return
-
-    const rows = Array.from(tbody.querySelectorAll("tr"))
-    rows.sort((a, b) => {
-      const winA = parseFloat(a.cells[3]?.textContent) || 0
-      const winB = parseFloat(b.cells[3]?.textContent) || 0
-      return winB - winA
-    })
-    rows.forEach(row => tbody.appendChild(row))
-  }
-
-  #updateRanks() {
-    const tbody = this.element.querySelector("tbody")
-    if (!tbody) return
-    tbody.querySelectorAll("tr").forEach((row, i) => {
-      row.cells[0].textContent = i + 1
-    })
   }
 }
