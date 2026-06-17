@@ -157,7 +157,7 @@ class FetchMatchResultsJob < ApplicationJob
         home_score = parts[0].to_i
         away_score = parts[1].to_i
 
-        if !match.result_set? || match.home_score != home_score || match.away_score != away_score
+        if !match.result_set? || match.status != "FT" || match.home_score != home_score || match.away_score != away_score
           match.update!(status: "FT", home_score: home_score, away_score: away_score)
           changed = true
         end
