@@ -47,8 +47,8 @@
                max_wp = local_assigns.fetch(:max_win_prob, 0.0).to_f
                if wp > 0 && max_wp > 0
                  ratio = wp / max_wp
-                 lightness = (90 - ratio * 40).round
-                 bg = "hsl(215, 35%, #{lightness}%)"
+                 lightness = (88 - ratio * 33).round
+                 bg = "hsl(215, 60%, #{lightness}%)"
                end %>
             <td class="col-win"<%= " style=\"background: #{bg}\"".html_safe if bg %>><%= sprintf("%.1f%%", wp) %></td>
             <% matches.each do |match| %>
