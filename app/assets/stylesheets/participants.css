@@ -64,7 +64,7 @@ h1 {
 
 .col-rank { width: 16px; min-width: 16px; }
 .col-name { max-width: 240px; text-align: left !important; overflow: hidden; text-overflow: ellipsis; }
-.col-win { width: 50px; min-width: 50px; }
+.col-win { width: 32px; min-width: 32px; }
 .col-pts { width: 40px; min-width: 40px; }
 
 .col-match {
@@ -96,12 +96,12 @@ h1 {
 
 .leaderboard th.col-win,
 .leaderboard td.col-win {
-  left: 230px;
+  left: 296px;
 }
 
 .leaderboard th.col-pts,
 .leaderboard td.col-pts {
-  left: 180px;
+  left: 240px;
 }
 
 .leaderboard th.col-rank { z-index: 3; }
@@ -271,16 +271,16 @@ tr.favorited .fav-heart {
 
   .leaderboard th.col-name,
   .leaderboard td.col-name {
-    left: 16px;
+    left: 32px;
   }
 
   .leaderboard th.col-pts,
   .leaderboard td.col-pts {
-    left: 116px;
+    left: 124px;
   }
 
   .leaderboard th.col-win,
   .leaderboard td.col-win {
-    left: 156px;
+    left: 180px;
   }
 }

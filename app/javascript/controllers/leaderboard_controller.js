@@ -4,6 +4,27 @@ export default class extends Controller {
   connect() {
     this.boundBeforeStreamRender = this.beforeStreamRender.bind(this)
     document.addEventListener("turbo:before-stream-render", this.boundBeforeStreamRender)
+    this.scrollToLatestResult()
+  }
+
+  scrollToLatestResult() {
+    const wrapper = this.element.querySelector(".table-wrapper")
+    if (!wrapper) return
+
+    const headers = wrapper.querySelectorAll("th.col-match")
+    let lastResult = null
+    headers.forEach(th => {
+      const result = th.querySelector(".match-result")
+      if (result && /\d+\s*-\s*\d+/.test(result.textContent)) {
+        lastResult = th
+      }
+    })
+
+    if (lastResult) {
+      const wrapperRect = wrapper.getBoundingClientRect()
+      const thRect = lastResult.getBoundingClientRect()
+      wrapper.scrollLeft += thRect.right - wrapperRect.right + 8
+    }
   }
 
   disconnect() {
