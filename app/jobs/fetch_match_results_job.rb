@@ -43,6 +43,7 @@ class FetchMatchResultsJob < ApplicationJob
     "JAPÓN" => %w[JAPÓN JAPON],
     "COSTA DE MARFIL" => ["COSTA DE MARFIL", "COSRTA DE MARFIL"],
     "COSRTA DE MARFIL" => ["COSRTA DE MARFIL", "COSTA DE MARFIL"],
+    "AUSTRIA" => %w[AUSTRIA AUSTRALIA],
   }.freeze
 
   def perform
