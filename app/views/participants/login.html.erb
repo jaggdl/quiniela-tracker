@@ -1,0 +1,26 @@
+<% content_for :title, "Quiniela — Entrar" %>
+
+<h1>Quiniela Mundial 2026</h1>
+
+<div style="max-width: 360px; margin: 2rem auto; text-align: center;">
+  <p style="margin-bottom: 1rem; color: #555;">Escribe tu nombre tal cual aparece en el archivo de Excel:</p>
+
+  <% if flash[:alert] %>
+    <p style="color: #dc3545; margin-bottom: 0.75rem;"><%= flash[:alert] %></p>
+  <% end %>
+
+  <div id="login-form">
+    <%= form_with url: login_path, method: :post, local: true, html: { onsubmit: "document.getElementById('login-form').style.display='none';document.getElementById('login-loader').style.display='block';return true" } do |f| %>
+      <%= f.text_field :name,
+            placeholder: "Tu nombre",
+            autocomplete: "off",
+            autofocus: true,
+            style: "width: 100%; padding: 0.5rem; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 0.75rem;" %>
+      <%= f.submit "Entrar", style: "padding: 0.5rem 2rem; font-size: 1rem; cursor: pointer; background: #16213e; color: #fff; border: none; border-radius: 4px;" %>
+    <% end %>
+  </div>
+
+  <div id="login-loader" style="display: none; padding: 2rem 0; color: #555;">
+    <p>Verificando&hellip;</p>
+  </div>
+</div>

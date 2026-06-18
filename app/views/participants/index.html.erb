@@ -15,7 +15,7 @@
 <div id="leaderboard-content">
   <div class="table-wrapper">
     <turbo-frame id="leaderboard-content-frame">
-      <%= render "table", matches: @matches, participants: @participants, predictions_by_participant: @predictions_by_participant, leader_points: @leader_points, max_win_prob: @max_win_prob, show_win: @show_win %>
+      <%= render "table", matches: @matches, participants: @participants, predictions_by_participant: @predictions_by_participant, leader_points: @leader_points, max_win_prob: @max_win_prob, show_win: @show_win, match_results: @match_results %>
     </turbo-frame>
   </div>
 </div>

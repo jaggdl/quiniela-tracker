@@ -89,8 +89,11 @@ class FetchMatchResultsJob < ApplicationJob
 
   def broadcast_leaderboard
     matches = Match.order(:matchday, :match_number)
+    match_results = matches.index_by(&:id).transform_values(&:result_set?)
 
-    participants = Participant.includes(predictions: :match).to_a
+    participants = Participant.select(:id, :name, :win_probability)
+                              .includes(:predictions)
+                              .to_a
 
     predictions_by_participant = participants.each_with_object({}) do |participant, hash|
       hash[participant.id] = participant.predictions.index_by(&:match_id)
@@ -120,7 +123,8 @@ class FetchMatchResultsJob < ApplicationJob
           predictions_by_participant: predictions_by_participant,
           leader_points: leader_points,
           max_win_prob: max_win_prob,
-          show_win: show_win
+          show_win: show_win,
+          match_results: match_results
         }
       )
 

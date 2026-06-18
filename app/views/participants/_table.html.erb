@@ -60,7 +60,7 @@
         <% end %>
         <% matches.each do |match| %>
           <% prediction = predictions_by_participant[participant.id][match.id] %>
-          <td id="<%= dom_id(prediction) %>" class="col-match <%= prediction_css(prediction) %>">
+          <td id="<%= dom_id(prediction) %>" class="col-match <%= prediction_css(prediction, local_assigns[:match_results]) %>">
             <%= prediction.home_score %> - <%= prediction.away_score %>
           </td>
         <% end %>

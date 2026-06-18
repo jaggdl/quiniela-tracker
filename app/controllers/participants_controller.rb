@@ -12,11 +12,14 @@ class ParticipantsController < ApplicationController
     end
 
     @matches = Match.order(:matchday, :match_number)
+    @match_results = @matches.index_by(&:id).transform_values(&:result_set?)
     @show_win = cookies[:is_admin].present?
     @sort = params[:sort].presence_in(%w[pts win]) || "pts"
     @sort = "pts" unless @show_win
 
-    participants = Participant.includes(predictions: :match).to_a
+    participants = Participant.select(:id, :name, :win_probability)
+                              .includes(:predictions)
+                              .to_a
     pts_rank = participants.sort_by { |p| [-p.total_points, p.name] }
     @rank_by_pts = {}
     pts_rank.each_with_index { |p, i| @rank_by_pts[p.id] = i + 1 }
