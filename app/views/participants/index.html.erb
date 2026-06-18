@@ -10,4 +10,10 @@
   </select>
 </div>
 
-<%= render "table", matches: @matches, participants: @participants, predictions_by_participant: @predictions_by_participant, leader_points: @leader_points, max_win_prob: @max_win_prob %>
+<div id="leaderboard-content">
+  <div class="table-wrapper">
+    <turbo-frame id="leaderboard-content-frame">
+      <%= render "table", matches: @matches, participants: @participants, predictions_by_participant: @predictions_by_participant, leader_points: @leader_points, max_win_prob: @max_win_prob %>
+    </turbo-frame>
+  </div>
+</div>

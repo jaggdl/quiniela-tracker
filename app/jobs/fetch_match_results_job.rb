@@ -123,7 +123,7 @@ class FetchMatchResultsJob < ApplicationJob
 
       Turbo::StreamsChannel.broadcast_replace_to(
         channel,
-        target: "leaderboard-content",
+        target: "leaderboard-table",
         html: html
       )
     end

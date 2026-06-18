@@ -1,65 +1,60 @@
-<div id="leaderboard-content" data-controller="favorites leaderboard"
-     style="view-transition-name: leaderboard-content">
-  <div class="table-wrapper">
-    <table class="leaderboard">
-      <thead>
-        <tr>
-          <th class="col-rank">#</th>
-          <th class="col-name">Participante</th>
-          <th class="col-pts" title="Puntos acumulados">Pts</th>
-          <th class="col-win" title="Probabilidad de ganar la quiniela">Win%</th>
-          <% matches.each do |match| %>
-            <th id="<%= dom_id(match, :hdr) %>" class="col-match <%= match_css(match) %>">
-              <div class="match-header">
-                <span class="team-home"><%= match.home_team %></span>
-                <span class="match-result">
-                  <% if match.result_set? %>
-                    <%= match.home_score %> - <%= match.away_score %>
-                  <% elsif match.live? %>
-                    <span class="live-badge"><%= match.status_display %></span>
-                  <% else %>
-                    &mdash;
-                  <% end %>
-                  <% if match.live? && match.result_set? %>
-                    <span class="live-badge"><%= match.status_display %></span>
-                  <% end %>
-                </span>
-                <span class="team-away"><%= match.away_team %></span>
-              </div>
-            </th>
-          <% end %>
-        </tr>
-      </thead>
-      <tbody>
-        <% participants.each_with_index do |participant, index| %>
-          <tr data-favorites-target="row" data-participant-id="<%= participant.id %>">
-            <td class="col-rank"><%= @rank_by_pts[participant.id] %></td>
-            <td class="col-name">
-              <span class="fav-heart" data-action="click->favorites#toggle" data-participant-id="<%= participant.id %>">♡</span>
-              <%= participant.name %>
-            </td>
-            <td id="<%= dom_id(participant, :pts) %>" class="col-pts">
-              <%= participant.total_points %>
-              <% diff = participant.total_points - leader_points %>
-              <span class="pts-diff"><%= diff.zero? ? "" : "(#{diff})" %></span>
-            </td>
-            <% wp = participant.win_probability.to_f
-               max_wp = local_assigns.fetch(:max_win_prob, 0.0).to_f
-               if wp > 0 && max_wp > 0
-                 ratio = wp / max_wp
-                  bg = "hsl(52, 85%, #{(90 - ratio * 15).round}%)"
-               end %>
-            <td class="col-win"<%= " style=\"background: #{bg}\"".html_safe if bg %>><%= sprintf("%.1f%%", wp) %></td>
-            <% matches.each do |match| %>
-              <% prediction = predictions_by_participant[participant.id][match.id] %>
-              <td id="<%= dom_id(prediction) %>" class="col-match <%= prediction_css(prediction) %>">
-                <%= prediction.home_score %> - <%= prediction.away_score %>
-              </td>
-            <% end %>
-          </tr>
+<table id="leaderboard-table" class="leaderboard" data-controller="favorites leaderboard"
+       style="view-transition-name: leaderboard-table">
+  <thead>
+    <tr>
+      <th class="col-rank">#</th>
+      <th class="col-name">Participante</th>
+      <th class="col-pts" title="Puntos acumulados">Pts</th>
+      <th class="col-win" title="Probabilidad de ganar la quiniela">Win%</th>
+      <% matches.each do |match| %>
+        <th id="<%= dom_id(match, :hdr) %>" class="col-match <%= match_css(match) %>">
+          <div class="match-header">
+            <span class="team-home"><%= match.home_team %></span>
+            <span class="match-result">
+              <% if match.result_set? %>
+                <%= match.home_score %> - <%= match.away_score %>
+              <% elsif match.live? %>
+                <span class="live-badge"><%= match.status_display %></span>
+              <% else %>
+                &mdash;
+              <% end %>
+              <% if match.live? && match.result_set? %>
+                <span class="live-badge"><%= match.status_display %></span>
+              <% end %>
+            </span>
+            <span class="team-away"><%= match.away_team %></span>
+          </div>
+        </th>
+      <% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <% participants.each_with_index do |participant, index| %>
+      <tr data-favorites-target="row" data-participant-id="<%= participant.id %>">
+        <td class="col-rank"><%= @rank_by_pts[participant.id] %></td>
+        <td class="col-name">
+          <span class="fav-heart" data-action="click->favorites#toggle" data-participant-id="<%= participant.id %>">♡</span>
+          <%= participant.name %>
+        </td>
+        <td id="<%= dom_id(participant, :pts) %>" class="col-pts">
+          <%= participant.total_points %>
+          <% diff = participant.total_points - leader_points %>
+          <span class="pts-diff"><%= diff.zero? ? "" : "(#{diff})" %></span>
+        </td>
+        <% wp = participant.win_probability.to_f
+           max_wp = local_assigns.fetch(:max_win_prob, 0.0).to_f
+           if wp > 0 && max_wp > 0
+             ratio = wp / max_wp
+               bg = "hsl(43, 90%, #{(100 - ratio * 25).round}%)"
+           end %>
+        <td class="col-win"<%= " style=\"background: #{bg}\"".html_safe if bg %>><%= sprintf("%.1f%%", wp) %></td>
+        <% matches.each do |match| %>
+          <% prediction = predictions_by_participant[participant.id][match.id] %>
+          <td id="<%= dom_id(prediction) %>" class="col-match <%= prediction_css(prediction) %>">
+            <%= prediction.home_score %> - <%= prediction.away_score %>
+          </td>
         <% end %>
-      </tbody>
-    </table>
-  </div>
-
-</div>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

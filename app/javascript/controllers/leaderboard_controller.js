@@ -2,13 +2,36 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   connect() {
-    this.boundBeforeStreamRender = this.beforeStreamRender.bind(this)
-    document.addEventListener("turbo:before-stream-render", this.boundBeforeStreamRender)
-    this.scrollToLatestResult()
+    this.lastHiddenAt = null
+    this.boundVisibilityChange = this.onVisibilityChange.bind(this)
+    document.addEventListener("visibilitychange", this.boundVisibilityChange)
+
+    const wrapper = this.element.closest(".table-wrapper")
+    if (wrapper && wrapper.scrollLeft === 0 && wrapper.scrollTop === 0) {
+      this.scrollToLatestResult()
+    }
+  }
+
+  disconnect() {
+    document.removeEventListener("visibilitychange", this.boundVisibilityChange)
+  }
+
+  onVisibilityChange() {
+    if (document.hidden) {
+      this.lastHiddenAt = Date.now()
+    } else if (this.lastHiddenAt && (Date.now() - this.lastHiddenAt) > 5 * 60 * 1000) {
+      this.refreshTable()
+      this.lastHiddenAt = null
+    }
+  }
+
+  refreshTable() {
+    const frame = document.getElementById("leaderboard-content-frame")
+    if (frame) frame.reload()
   }
 
   scrollToLatestResult() {
-    const wrapper = this.element.querySelector(".table-wrapper")
+    const wrapper = this.element.closest(".table-wrapper")
     if (!wrapper) return
 
     const headers = wrapper.querySelectorAll("th.col-match")
@@ -25,49 +48,5 @@ export default class extends Controller {
       const thRect = lastResult.getBoundingClientRect()
       wrapper.scrollLeft += thRect.right - wrapperRect.right + 8
     }
-  }
-
-  disconnect() {
-    document.removeEventListener("turbo:before-stream-render", this.boundBeforeStreamRender)
-  }
-
-  beforeStreamRender(event) {
-    if (event.target.target !== "leaderboard-content") return
-
-    const wrapper = this.element.querySelector(".table-wrapper")
-    const scrollLeft = wrapper ? wrapper.scrollLeft : 0
-
-    if (!document.startViewTransition) {
-      this.renderAndRestore(event, scrollLeft)
-      return
-    }
-
-    event.preventDefault()
-    const { newStream, render } = event.detail
-
-    document.startViewTransition(() => {
-      render(newStream)
-      this.restoreScroll(scrollLeft)
-      this.afterRender()
-    })
-  }
-
-  renderAndRestore(event, scrollLeft) {
-    const { newStream, render } = event.detail
-    event.preventDefault()
-    render(newStream)
-    this.restoreScroll(scrollLeft)
-    this.afterRender()
-  }
-
-  restoreScroll(scrollLeft) {
-    requestAnimationFrame(() => {
-      const wrapper = this.element.querySelector(".table-wrapper")
-      if (wrapper) wrapper.scrollLeft = scrollLeft
-    })
-  }
-
-  afterRender() {
-    this.dispatch("updated")
   }
 }

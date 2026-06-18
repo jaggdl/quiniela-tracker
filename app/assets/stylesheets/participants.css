@@ -245,11 +245,11 @@ tr.favorited .fav-heart {
   line-height: 1.4;
 }
 
-::view-transition-old(leaderboard-content) {
+::view-transition-old(leaderboard-table) {
   animation: fade-out 0.15s ease-out;
 }
 
-::view-transition-new(leaderboard-content) {
+::view-transition-new(leaderboard-table) {
   animation: fade-in 0.15s ease-in;
 }
 
