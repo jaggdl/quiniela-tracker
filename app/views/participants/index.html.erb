@@ -1,7 +1,8 @@
-<%= turbo_stream_from "leaderboard_#{@sort}" %>
+<%= turbo_stream_from "leaderboard_#{@sort}#{"_admin" if @show_win}" %>
 
 <h1>Quiniela Mundial 2026</h1>
 
+<% if @show_win %>
 <div class="sort-bar">
   <label for="sort-select">Ordenar por:</label>
   <select id="sort-select" onchange="Turbo.visit('?sort='+this.value)">
@@ -9,11 +10,12 @@
     <option value="win" <%= "selected" if @sort == "win" %>>% Ganar</option>
   </select>
 </div>
+<% end %>
 
 <div id="leaderboard-content">
   <div class="table-wrapper">
     <turbo-frame id="leaderboard-content-frame">
-      <%= render "table", matches: @matches, participants: @participants, predictions_by_participant: @predictions_by_participant, leader_points: @leader_points, max_win_prob: @max_win_prob %>
+      <%= render "table", matches: @matches, participants: @participants, predictions_by_participant: @predictions_by_participant, leader_points: @leader_points, max_win_prob: @max_win_prob, show_win: @show_win %>
     </turbo-frame>
   </div>
 </div>

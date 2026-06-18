@@ -106,9 +106,11 @@ class FetchMatchResultsJob < ApplicationJob
     win_sorted = participants.sort_by { |p| [-p.win_probability, p.name] }
 
     [
-      ["leaderboard_pts", pts_sorted, "pts"],
-      ["leaderboard_win", win_sorted, "win"]
-    ].each do |channel, sorted, sort|
+      ["leaderboard_pts", pts_sorted, "pts", false],
+      ["leaderboard_win", win_sorted, "win", false],
+      ["leaderboard_pts_admin", pts_sorted, "pts", true],
+      ["leaderboard_win_admin", win_sorted, "win", true],
+    ].each do |channel, sorted, sort, show_win|
       html = ApplicationController.render(
         partial: "participants/table",
         assigns: { sort: sort, rank_by_pts: rank_by_pts },
@@ -117,7 +119,8 @@ class FetchMatchResultsJob < ApplicationJob
           participants: sorted,
           predictions_by_participant: predictions_by_participant,
           leader_points: leader_points,
-          max_win_prob: max_win_prob
+          max_win_prob: max_win_prob,
+          show_win: show_win
         }
       )
 

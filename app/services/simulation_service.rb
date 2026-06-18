@@ -190,4 +190,62 @@ class SimulationService
       h[p.id] = winners.include?(p.id) ? share : 0.0
     end
   end
+
+  def cannot_win_participants
+    matches = Match.order(:matchday, :match_number).to_a
+    remaining = matches.reject(&:result_set?)
+    participants = Participant.includes(:predictions).to_a
+    return Set.new if participants.empty?
+
+    base_points = {}
+    participants.each { |p| base_points[p.id] = p.total_points }
+
+    if remaining.empty?
+      max_pts = base_points.values.max || 0
+      return Set.new(participants.reject { |p| base_points[p.id] == max_pts }.map(&:id))
+    end
+
+    preds_by_participant = participants.each_with_object({}) do |p, h|
+      h[p.id] = p.predictions.each_with_object({}) do |pred, inner|
+        inner[pred.match_id] = [pred.home_score, pred.away_score]
+      end
+    end
+
+    remaining_ids = remaining.map(&:id)
+    remaining_count = remaining_ids.length
+
+    cannot_win = Set.new
+
+    participants.each do |p|
+      pid = p.id
+      perfect_score = base_points[pid] + 3 * remaining_count
+
+      beaten = false
+      participants.each do |q|
+        next if q.id == pid
+
+        q_total = base_points[q.id]
+        remaining_ids.each do |mid|
+          p_pred = preds_by_participant[pid][mid]
+          q_pred = preds_by_participant[q.id][mid]
+          next if p_pred.nil? || q_pred.nil?
+
+          if p_pred == q_pred
+            q_total += 3
+          elsif (p_pred[0] <=> p_pred[1]) == (q_pred[0] <=> q_pred[1])
+            q_total += 1
+          end
+        end
+
+        if q_total > perfect_score
+          beaten = true
+          break
+        end
+      end
+
+      cannot_win << pid if beaten
+    end
+
+    cannot_win
+  end
 end

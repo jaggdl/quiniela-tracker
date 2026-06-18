@@ -5,7 +5,9 @@
       <th class="col-rank">#</th>
       <th class="col-name">Participante</th>
       <th class="col-pts" title="Puntos acumulados">Pts</th>
+      <% if local_assigns.fetch(:show_win, false) %>
       <th class="col-win" title="Probabilidad de ganar la quiniela">Win%</th>
+      <% end %>
       <% matches.each do |match| %>
         <th id="<%= dom_id(match, :hdr) %>" class="col-match <%= match_css(match) %>">
           <div class="match-header">
@@ -41,13 +43,21 @@
           <% diff = participant.total_points - leader_points %>
           <span class="pts-diff"><%= diff.zero? ? "" : "(#{diff})" %></span>
         </td>
+        <% if local_assigns.fetch(:show_win, false) %>
         <% wp = participant.win_probability.to_f
-           max_wp = local_assigns.fetch(:max_win_prob, 0.0).to_f
-           if wp > 0 && max_wp > 0
-             ratio = wp / max_wp
+           if wp < 0
+             display = "< 0.0%"
+             bg = "#e9ecef"
+           else
+             display = sprintf("%.1f%%", wp)
+             max_wp = local_assigns.fetch(:max_win_prob, 0.0).to_f
+             if wp > 0 && max_wp > 0
+               ratio = wp / max_wp
                bg = "hsl(43, 90%, #{(100 - ratio * 25).round}%)"
+             end
            end %>
-        <td class="col-win"<%= " style=\"background: #{bg}\"".html_safe if bg %>><%= sprintf("%.1f%%", wp) %></td>
+        <td class="col-win"<%= " style=\"background: #{bg}\"".html_safe if bg %>><%= display %></td>
+        <% end %>
         <% matches.each do |match| %>
           <% prediction = predictions_by_participant[participant.id][match.id] %>
           <td id="<%= dom_id(prediction) %>" class="col-match <%= prediction_css(prediction) %>">

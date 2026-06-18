@@ -1,7 +1,9 @@
 class ParticipantsController < ApplicationController
   def index
     @matches = Match.order(:matchday, :match_number)
+    @show_win = cookies[:is_admin].present?
     @sort = params[:sort].presence_in(%w[pts win]) || "pts"
+    @sort = "pts" unless @show_win
 
     participants = Participant.includes(predictions: :match).to_a
     pts_rank = participants.sort_by { |p| [-p.total_points, p.name] }
