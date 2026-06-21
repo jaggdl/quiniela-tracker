@@ -6,7 +6,7 @@ export default class extends Controller {
     this.boundVisibilityChange = this.onVisibilityChange.bind(this)
     document.addEventListener("visibilitychange", this.boundVisibilityChange)
 
-    const wrapper = this.element.closest(".table-wrapper")
+    const wrapper = this.element.querySelector(".table-wrapper")
     if (wrapper && wrapper.scrollLeft === 0 && wrapper.scrollTop === 0) {
       this.scrollToLatestResult()
     }
@@ -31,7 +31,7 @@ export default class extends Controller {
   }
 
   scrollToLatestResult() {
-    const wrapper = this.element.closest(".table-wrapper")
+    const wrapper = this.element.querySelector(".table-wrapper")
     if (!wrapper) return
 
     const headers = wrapper.querySelectorAll("th.col-match")

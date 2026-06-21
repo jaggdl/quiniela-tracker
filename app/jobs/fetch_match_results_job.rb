@@ -80,8 +80,6 @@ class FetchMatchResultsJob < ApplicationJob
       end
     end
 
-    changed = true if update_statuses_from_polymarket
-
     broadcast_leaderboard if changed
   end
 
@@ -155,28 +153,4 @@ class FetchMatchResultsJob < ApplicationJob
     Match.find_by(home_team: db_away, away_team: db_home)
   end
 
-  def update_statuses_from_polymarket
-    events = PolymarketService.new.fetch_events
-    return false if events.empty?
-
-    changed = false
-
-    events.each do |event|
-      next unless event["live"]
-
-      match = PolymarketService.new.find_db_match(event)
-      next unless match
-      next if match.result_set?
-
-      if match.status != "LIVE"
-        match.update!(status: "LIVE")
-        changed = true
-      end
-    end
-
-    changed
-  rescue StandardError => e
-    Rails.logger.warn("update_statuses_from_polymarket failed: #{e.message}")
-    false
-  end
 end

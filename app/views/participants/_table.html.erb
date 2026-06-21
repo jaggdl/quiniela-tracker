@@ -1,4 +1,4 @@
-<table id="leaderboard-table" class="leaderboard" data-controller="favorites leaderboard"
+<table id="leaderboard-table" class="leaderboard"
        style="view-transition-name: leaderboard-table">
   <thead>
     <tr>
@@ -32,7 +32,8 @@
   </thead>
   <tbody>
     <% participants.each_with_index do |participant, index| %>
-      <tr data-favorites-target="row" data-participant-id="<%= participant.id %>">
+      <% is_leader = participant.total_points == leader_points %>
+      <tr data-favorites-target="row" data-participant-id="<%= participant.id %>"<%= " data-leader=\"true\"".html_safe if is_leader %>>
         <td class="col-rank"><%= @rank_by_pts[participant.id] %></td>
         <td class="col-name">
           <span class="fav-heart" data-action="click->favorites#toggle" data-participant-id="<%= participant.id %>">♡</span>
@@ -41,7 +42,7 @@
         <td id="<%= dom_id(participant, :pts) %>" class="col-pts">
           <%= participant.total_points %>
           <% diff = participant.total_points - leader_points %>
-          <span class="pts-diff"><%= diff.zero? ? "" : "(#{diff})" %></span>
+          <span class="pts-diff"><%= is_leader ? "" : "(#{diff})" %></span>
         </td>
         <% if local_assigns.fetch(:show_win, false) %>
         <% wp = participant.win_probability.to_f
