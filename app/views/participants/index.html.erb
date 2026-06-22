@@ -23,30 +23,4 @@
       </turbo-frame>
     </div>
   </div>
-
-  <% if false %>
-  <%
-    messages = @payment_messages.presence&.map(&:formatted) || []
-    ticker_msg = if messages.any?
-      messages.join(" · ") + " · "
-    else
-      "Aún no hay donaciones recientes · "
-    end
-  %>
-  <div class="airport-bar">
-    <details class="donate-details">
-      <summary class="donate-btn">Donar</summary>
-      <form action="/checkout" method="post" class="donate-form" data-turbo="false">
-        <%= token_tag %>
-        <input type="text" name="message" placeholder="Mensaje" maxlength="200">
-        <button type="submit">Pagar $20 MXN</button>
-      </form>
-    </details>
-    <div class="airport-board">
-      <div class="airport-board-ticker">
-        <div class="airport-board-text"><%= ticker_msg %><%= ticker_msg %></div>
-      </div>
-    </div>
-  </div>
-  <% end %>
 </div>

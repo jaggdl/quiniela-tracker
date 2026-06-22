@@ -7,21 +7,6 @@ export default class extends Controller {
     this.applyFavorites()
     this.applyFilter()
     this.updateFilterButton()
-
-    this.boundOnFrameLoad = this.onFrameLoad.bind(this)
-    document.addEventListener("turbo:frame-load", this.boundOnFrameLoad)
-  }
-
-  disconnect() {
-    document.removeEventListener("turbo:frame-load", this.boundOnFrameLoad)
-  }
-
-  onFrameLoad(event) {
-    if (event.target.id === "leaderboard-content-frame") {
-      this.applyFavorites()
-      this.applyFilter()
-      this.updateFilterButton()
-    }
   }
 
   toggle(event) {

@@ -30,7 +30,6 @@ gem "solid_cable"
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "csv"
-gem "dotenv-rails"
 gem "bootsnap", require: false
 
 # Deploy this application anywhere as a Docker container [https://kamal-deploy.org]
@@ -66,5 +65,3 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
-
-gem "stripe", "~> 19.2"

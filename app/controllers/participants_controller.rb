@@ -33,9 +33,6 @@ class ParticipantsController < ApplicationController
     @predictions_by_participant = @participants.each_with_object({}) do |participant, hash|
       hash[participant.id] = participant.predictions.index_by(&:match_id)
     end
-
-    StripePaymentFetcher.call if params[:success]
-    @payment_messages = PaymentMessage.recent
   end
 
   private

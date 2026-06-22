@@ -5,9 +5,6 @@ development:
   simulation:
     class: SimulationJob
     schedule: every 5 minutes
-  fetch_stripe_payments:
-    class: FetchStripePaymentsJob
-    schedule: every 5 minutes
 
 production:
   fetch_match_results:
@@ -15,9 +12,6 @@ production:
     schedule: every minute
   simulation:
     class: SimulationJob
-    schedule: every 5 minutes
-  fetch_stripe_payments:
-    class: FetchStripePaymentsJob
     schedule: every 5 minutes
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
